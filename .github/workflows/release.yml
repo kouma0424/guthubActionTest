@@ -1,13 +1,14 @@
 name: release stable version
 on:
-  push:
+  pull_request:
     branches:
-      - master
+      - release
+    types:
+      - closed
 jobs:
   release:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    permissions:
-        contents: write
     steps:
       - uses: actions/checkout@v3
       - name: get version number
@@ -18,7 +19,7 @@ jobs:
             key-path: '["version"]'         # Access the runs key then the using key and retuns the value.
       - name: generate release name
         id: generate_release_name
-        run: echo "version=$(echo "${{ steps.get_version_number.outputs.data }}" |awk 'BEGIN{FS="+"}{print $1.$2}')" >>$GITHUB_ENV
+        run: echo "version=$(echo "${{ steps.get_version_number.outputs.data }}" |awk 'BEGIN{FS="+"}{print $1}')" >>$GITHUB_ENV
       - name: release
         id: release
         uses: ncipollo/release-action@v1
