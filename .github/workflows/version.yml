@@ -9,8 +9,6 @@ jobs:
   build:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       # 最新ブランチをチェックアウト
       - name: Checkout code
@@ -25,7 +23,7 @@ jobs:
       # Git設定
       - name: Git config
         run: |
-          git remote set-url origin https://github-actions:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}
+          git remote set-url origin https://github-actions:${secrets.GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
