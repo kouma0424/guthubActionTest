@@ -2,7 +2,7 @@ name: count up build number
 on:
   pull_request:
     branches:
-      - test
+      - test/*
     types:
       - closed
 jobs:
@@ -39,6 +39,6 @@ jobs:
       #　test -> developにprをだす
       - name: develop pr
         run: | 
-          gh pr create --base develop --head test --title "build number up" --body ""
+          gh pr create -B develop -t "build number up" -b ""
           
       
