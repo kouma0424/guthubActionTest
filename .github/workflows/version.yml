@@ -1,0 +1,44 @@
+name: count up build number
+on:
+  pull_request:
+    branches:
+      - test
+    types:
+      - closed
+jobs:
+  build:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      # 最新ブランチをチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      # ビルド番号を1つあげる
+      - name: Bump build number
+        run: perl -i -pe 's/^(version:\s+\d+\.\d+\.\d+\+)(\d+)$/$1.($2+1)/e' pubspec.yaml
+
+      # Git設定
+      - name: Git config
+        run: |
+          git remote set-url origin https://github-actions:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      # 変更をtestブランチにcommit＆push
+      - name: Push updated pubspec.yml
+        run: |
+          git add .
+          git commit -m "Bump build number"
+          git push origin ${{ github.event.pull_request.head.ref }}
+
+      #　test -> developにprをだす
+      - name: develop pr
+        run: | 
+          gh pr create --base develop --head test --title "build number up" --body ""
+          
+      
